@@ -9,40 +9,26 @@ SHELL := bash
 # VARS
 docker_run := docker run -itd --rm
 
-
-# TARGETS
-network-start:
-	docker network create --label name:esk_network esk_network
-
-network-show:
-	docker network list
-
-network-prune: network-show
-	docker network prune --force
-
-build-es:
-	cd es && docker build --tag elasticsearch .
-
-build-kibana:
-	cd kibana && docker build --tag kibana .
-
-elasticsearch: build-es
-	$(docker_run) --name elasticsearch --network=esk_network -p 9200:9200 es:latest
-
-kibana: build-kibana
-	$(docker_run) --name kibana --network=esk_network -p 5601:5601 kibana:latest
-
-ping-es:
-	curl -X GET "localhost:9200/_cat/nodes?v&pretty"
-
+#-----------------------------------------------------------------------------------------
+# SECTION: MANAGE SERVICE
 start:
-	$(MAKE) network-prune
-	$(MAKE) network-start
-	$(MAKE) network-show
-	$(MAKE) es
-	$(MAKE) kibana
+	docker-compose -f docker-compose.yml up
 
 stop:
-	docker stop kibana
-	docker stop elasticsearch
-	$(MAKE) network-prune
+	docker-compose -f docker-compose.yml down
+
+ping-es:
+	curl -v "localhost:9200/_cat/nodes?v&pretty"
+	curl -v "localhost:9200/_cat/indices?v&pretty"
+
+network-inspect:
+	docker network list
+	docker network inspect presto-n
+	docker exec -it kibana ping es -v -c 5
+
+#-----------------------------------------------------------------------------------------
+# SECTION: ELASTIC QUERIES
+es-query:
+	$(MAKE) --directory es example-queries
+
+

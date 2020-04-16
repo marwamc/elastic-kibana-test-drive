@@ -1,13 +1,16 @@
-version: '2.2'
+version: '3.5'
+
 services:
+
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.6.1
     container_name: es
     environment:
       - node.name=es
+      - node.master=true
       - cluster.name=es-kibana-docker-cluster
       - discovery.seed_hosts=es
-      - cluster.initial_master_nodes=es,kibana
+      - cluster.initial_master_nodes=es
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
@@ -19,15 +22,15 @@ services:
     ports:
       - 9200:9200
       - 9300:9300
-    networks:
-      - elastic
 
   kibana:
+    depends_on:
+      - es
     image: docker.elastic.co/kibana/kibana:7.6.1
     container_name: kibana
     environment:
-      SERVER_HOST: "localhost"
-      ELASTICSEARCH_HOSTS: "http://localhost:9200" 
+      SERVER_HOST: "kibana"
+      ELASTICSEARCH_HOSTS: "http://es:9200"
       LOGGING_VERBOSE: "false"
     ulimits:
       memlock:
@@ -35,18 +38,13 @@ services:
         hard: -1
     volumes:
       - datakibana:/usr/share/kibana/data
-      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
       - 5601:5601
-    networks:
-      - elastic
+    links:
+      - "es:elasticsearch"
 
 volumes:
   dataes:
     driver: local
   datakibana:
     driver: local
-
-networks:
-  elastic:
-    driver: bridge
