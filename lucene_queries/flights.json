@@ -1,0 +1,10 @@
+{
+  "query": {
+    "bool": {
+      "must": [
+        {"match": {"OriginCityName": "Munich"}},
+        {"match": {"DestCityName": "Sydney"}}
+      ]
+    }
+  }
+}

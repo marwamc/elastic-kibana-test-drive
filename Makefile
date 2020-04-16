@@ -28,7 +28,9 @@ network-inspect:
 
 #-----------------------------------------------------------------------------------------
 # SECTION: ELASTIC QUERIES
-es-query:
-	$(MAKE) --directory es example-queries
-
+example-search:
+	$(MAKE) \
+	INDEX='kibana_sample_data_flights' \
+	QUERY=@$(PWD)/lucene_queries/flights.json \
+	--directory es search
 

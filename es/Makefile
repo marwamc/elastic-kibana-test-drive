@@ -10,7 +10,8 @@ SHELL := bash
 # SECTION: VARS
 ES_HOST := localhost
 ES_PORT := 9200
-CAT := curl -H "Content-Type: application/json" http://${ES_HOST}:${ES_PORT}
+CAT := curl -v -H "Content-Type: application/json" http://${ES_HOST}:${ES_PORT}
+POST := curl -v -X POST -H "Content-Type: application/json" http://${ES_HOST}:${ES_PORT}
 
 #-----------------------------------------------------------------------------------------
 # SECTION: ELASTIC QUERIES
@@ -21,13 +22,8 @@ CAT := curl -H "Content-Type: application/json" http://${ES_HOST}:${ES_PORT}
 list:
 	${CAT}/${LOC}
 
-# make IND='kibana_sample_data_flights' DATA='{OriginCountry:DE,OriginCityName:Munich}' search
+# make INDEX='kibana_sample_data_flights' QUERY='{OriginCityName:Munich,DestCityName:Lima}' search
 search:
-	${CAT}/${IND}/_search?q=${DATA} -s | jq
+	${POST}/${INDEX}/_search -d ${QUERY} -s | jq
 
-#-----------------------------------------------------------------------------------------
-# SECTION: EXAMPLE QUERIES
-example-queries:
-	# Flights to Australia
-	$(MAKE) IND='kibana_sample_data_flights' DATA='{OriginCountry:DE,OriginCityName:Munich,DestCityName:Lima}' search
 
