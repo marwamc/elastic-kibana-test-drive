@@ -23,7 +23,6 @@ ping-es:
 
 network-inspect:
 	docker network list
-	docker network inspect presto-n
 	docker exec -it kibana ping es -v -c 5
 
 #-----------------------------------------------------------------------------------------
